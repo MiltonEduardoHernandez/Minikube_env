@@ -10,7 +10,7 @@ metadata:
 spec:
   containers:
   - name: docker
-    image: docker:20.10.7-dind
+    image: docker:24.0.5-dind
     securityContext:
       privileged: true
     tty: true
@@ -59,4 +59,3 @@ spec:
         }
     }
 }
-
