@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clonar Repositorio') {
             steps {
-                git credentialsId: 'token', url: 'https://github.com/MiltonEduardoHernandez/Minikube_env.git'
+                git branch: 'main', credentialsId: 'token', url: 'https://github.com/MiltonEduardoHernandez/Minikube_env.git'
             }
         }
 
