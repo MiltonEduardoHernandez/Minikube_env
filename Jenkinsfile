@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Clonar') {
+        stage('Clonar Repositorio') {
             steps {
-                git 'https://github.com/tu-usuario/my-spring-app.git'
+                git credentialsId: '9c2c7597-3a34-41c9-aa53-e785cc6c0ad1', url: 'https://github.com/MiltonEduardoHernandez/Minikube_env.git'
             }
         }
 
