@@ -26,17 +26,32 @@ spec:
 """
         }
     }
+
+    environment {
+        IMAGE_NAME = "my-app"
+        IMAGE_TAG = "latest"
+    }
+
     stages {
         stage('Clonar Repositorio') {
             steps {
-                git branch: 'main', credentialsId: 'TU_CREDENCIAL_ID', url: 'https://github.com/MiltonEduardoHernandez/Minikube_env.git'
+                script {
+                    echo "Clonando el repositorio..."
+                    checkout scm
+                }
             }
         }
 
         stage('Construir Imagen Docker') {
             steps {
                 container('docker') {
-                    sh 'docker build -t my-app .'
+                    script {
+                        echo "Construyendo imagen Docker..."
+                        sh '''
+                        set -e
+                        docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                        '''
+                    }
                 }
             }
         }
@@ -44,7 +59,29 @@ spec:
         stage('Ejecutar Contenedor') {
             steps {
                 container('docker') {
-                    sh 'docker run -d --name my-app -p 8080:8080 my-app'
+                    script {
+                        echo "Ejecutando contenedor..."
+                        sh '''
+                        docker stop my-app || true
+                        docker rm my-app || true
+                        docker run -d --name my-app -p 8080:8080 $IMAGE_NAME:$IMAGE_TAG
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Probar Aplicación') {
+            steps {
+                container('docker') {
+                    script {
+                        echo "Esperando que la aplicación inicie..."
+                        sleep 5
+                        echo "Verificando que el servicio responde..."
+                        sh '''
+                        curl -f http://localhost:8080 || exit 1
+                        '''
+                    }
                 }
             }
         }
@@ -53,9 +90,16 @@ spec:
     post {
         always {
             container('docker') {
-                sh 'docker stop my-app || true'
-                sh 'docker rm my-app || true'
+                script {
+                    echo "Limpiando contenedores y volúmenes..."
+                    sh '''
+                    docker stop my-app || true
+                    docker rm my-app || true
+                    docker volume prune -f || true
+                    '''
+                }
             }
+            cleanWs()
         }
     }
 }
