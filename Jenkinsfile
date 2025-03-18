@@ -20,6 +20,9 @@ spec:
   - name: jnlp
     image: jenkins/inbound-agent
     args: ['']
+    securityContext:
+      runAsUser: 1000
+      allowPrivilegeEscalation: true
   volumes:
   - name: docker-storage
     emptyDir: {}
@@ -89,14 +92,16 @@ spec:
 
     post {
         always {
-            container('docker') {
-                script {
-                    echo "Limpiando contenedores y volúmenes..."
-                    sh '''
-                    docker stop my-app || true
-                    docker rm my-app || true
-                    docker volume prune -f || true
-                    '''
+            node {
+                container('docker') {
+                    script {
+                        echo "Limpiando contenedores y volúmenes..."
+                        sh '''
+                        docker stop my-app || true
+                        docker rm my-app || true
+                        docker volume prune -f || true
+                        '''
+                    }
                 }
             }
             cleanWs()
