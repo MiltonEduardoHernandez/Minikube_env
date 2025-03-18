@@ -91,20 +91,18 @@ spec:
     }
 
     post {
-        always {
-            node {
-                container('docker') {
-                    script {
-                        echo "Limpiando contenedores y volúmenes..."
-                        sh '''
-                        docker stop my-app || true
-                        docker rm my-app || true
-                        docker volume prune -f || true
-                        '''
-                    }
-                }
+    always {
+        container('docker') {
+            script {
+                echo "Limpiando contenedores y volúmenes..."
+                sh '''
+                docker stop my-app || true
+                docker rm my-app || true
+                docker volume prune -f || true
+                '''
             }
-            cleanWs()
         }
+        cleanWs()
     }
+}
 }
